@@ -10,10 +10,13 @@
   },
   "dependencies": {
     "auth": "^1.2.3",
+    "mongoose": "^9.0.2",
     "next": "^16.1.0",
     "next-auth": "^4.24.13",
+    "razorpay": "^2.9.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

@@ -1,110 +1,111 @@
 "use client"
-import React, { useEffect } from 'react'
-import { useSession, signOut } from "next-auth/react"
+import React, { useEffect, useState } from 'react'
+import { useSession, signIn, signOut } from "next-auth/react"
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Bounce } from 'react-toastify';
 
 const Dashboard = () => {
-  const { data: session } = useSession()
-  const router = useRouter()
+    const { data: session, update } = useSession()
+    const router = useRouter()
+    const [form, setform] = useState({})
 
-  useEffect(() => {
-    if (!session) router.push('/login')
-  }, [session, router])
+    useEffect(() => {
+        console.log(session)
 
-  if (!session) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-pulse text-gray-500">Loading dashboard…</div>
-    </div>
-  )
+        if (!session) {
+            router.push('/login')
+        }
+    }, [])
 
-  const username = session.user?.name || (session.user?.email || '').split('@')[0]
+    const handleChange = (e) => {
+        setform({ ...form, [e.target.name]: e.target.value })
+    }
 
-  const stats = [
-    { id: 1, label: 'Fans', value: 1286 },
-    { id: 2, label: 'Tips', value: 342 },
-    { id: 3, label: 'Earnings', value: '$4,820' }
-  ]
+    const handleSubmit = async (e) => {
 
-  const recent = [
-    { id: 1, name: 'Asha', amount: '$10', avatar: '' },
-    { id: 2, name: 'Liam', amount: '$25', avatar: '' },
-    { id: 3, name: 'Noah', amount: '$5', avatar: '' }
-  ]
+        toast('Profile Updated', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+            });
+    }
 
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-6">
-      <div className="max-w-6xl mx-auto">
-        <header className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold">Welcome back, {session.user?.name || 'Creator'}</h1>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.push(`/${username}`)}
-              className="px-4 py-2 bg-transparent border border-slate-700 text-slate-100 rounded-md text-sm hover:bg-slate-800 hover:scale-[1.02] transition">View Profile</button>
-            <button
-              onClick={() => signOut()}
-              className="px-4 py-2 bg-rose-500 text-white rounded-md text-sm hover:bg-rose-600 transition">Sign out</button>
-          </div>
-        </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <aside className="md:col-span-1 bg-slate-800 rounded-lg shadow-md p-5 border border-slate-700">
-            <div className="flex flex-col items-center text-center">
-              {session.user?.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={session.user.image} alt="avatar" className="h-24 w-24 rounded-full object-cover mb-3 ring-1 ring-slate-700" />
-              ) : (
-                <div className="h-24 w-24 rounded-full bg-slate-700 mb-3 flex items-center justify-center text-slate-300 text-xl">{(session.user?.name || 'U')[0]}</div>
-              )}
-              <div className="font-medium text-slate-100">{session.user?.name}</div>
-              <div className="text-xs text-slate-400">{session.user?.email}</div>
-              <div className="mt-4 w-full">
-                <button onClick={() => router.push('/dashboard')} className="w-full px-3 py-2 bg-indigo-600 text-white rounded-md mb-2 hover:bg-indigo-700 transition">Dashboard</button>
-                <button onClick={() => router.push(`/${username}`)} className="w-full px-3 py-2 border border-slate-700 text-slate-100 rounded-md hover:bg-slate-800 transition">My Page</button>
-              </div>
-            </div>
-          </aside>
+    return (
+        <>
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+            />
+            {/* Same as */}
+            <ToastContainer />
+            <div className='container mx-auto py-5 px-6 '>
+                <h1 className='text-center my-5 text-3xl font-bold'>Welcome to your Dashboard</h1>
 
-          <main className="md:col-span-3">
-            <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-              {stats.map(s => (
-                <div key={s.id} className="bg-slate-800 rounded-lg p-4 shadow-sm border border-slate-700 hover:shadow-lg transition">
-                  <div className="text-sm text-slate-400">{s.label}</div>
-                  <div className="text-2xl font-semibold">{s.value}</div>
-                </div>
-              ))}
-            </section>
+                <form className="max-w-2xl mx-auto" action={handleSubmit}>
 
-            <section className="bg-slate-800 rounded-lg p-4 shadow-sm mb-6 border border-slate-700">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-medium">Recent Supporters</h2>
-                <button className="text-sm text-indigo-400 hover:underline">View all</button>
-              </div>
-              <ul className="space-y-3">
-                {recent.map(r => (
-                  <li key={r.id} className="flex items-center justify-between hover:bg-slate-850/50 rounded-md p-2 transition">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-slate-700 flex items-center justify-center text-slate-300">{r.name[0]}</div>
-                      <div>
-                        <div className="font-medium">{r.name}</div>
-                        <div className="text-xs text-slate-400">Thank you message</div>
-                      </div>
+                    <div className='my-2'>
+                        <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
+                        <input value={form.name ? form.name : ""} onChange={handleChange} type="text" name='name' id="name" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                     </div>
-                    <div className="text-sm font-medium">{r.amount}</div>
-                  </li>
-                ))}
-              </ul>
-            </section>
+                    {/* input for email */}
+                    <div className="my-2">
+                        <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                        <input value={form.email ? form.email : ""} onChange={handleChange} type="email" name='email' id="email" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                    </div>
+                    {/* input forusername */}
+                    <div className='my-2'>
+                        <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
+                        <input value={form.username ? form.username : ""} onChange={handleChange} type="text" name='username' id="username" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                    </div>
+                    {/* input for profile picture of input type text */}
+                    <div className="my-2">
+                        <label htmlFor="profilepic" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Profile Picture</label>
+                        <input value={form.profilepic ? form.profilepic : ""} onChange={handleChange} type="text" name='profilepic' id="profilepic" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                    </div>
 
-            <section className="bg-slate-800 rounded-lg p-4 shadow-sm border border-slate-700">
-              <h2 className="text-lg font-medium mb-3">Activity</h2>
-              <div className="text-sm text-slate-400">No recent activity — start promoting your page to get supporters!</div>
-            </section>
-          </main>
-        </div>
-      </div>
-    </div>
-  )
+                    {/* input for cover pic  */}
+                    <div className="my-2">
+                        <label htmlFor="coverpic" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Cover Picture</label>
+                        <input value={form.coverpic ? form.coverpic : ""} onChange={handleChange} type="text" name='coverpic' id="coverpic" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                    </div>
+                    {/* input razorpay id */}
+                    <div className="my-2">
+                        <label htmlFor="razorpayid" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Razorpay Id</label>
+                        <input value={form.razorpayid ? form.razorpayid : ""} onChange={handleChange} type="text" name='razorpayid' id="razorpayid" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                    </div>
+                    {/* input razorpay secret */}
+                    <div className="my-2">
+                        <label htmlFor="razorpaysecret" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Razorpay Secret</label>
+                        <input value={form.razorpaysecret ? form.razorpaysecret : ""} onChange={handleChange} type="text" name='razorpaysecret' id="razorpaysecret" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                    </div>
+
+                    {/* Submit Button  */}
+                    <div className="my-6">
+                        <button type="submit" className="block w-full p-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-blue-500 focus:ring-4 focus:outline-none   dark:focus:ring-blue-800 font-medium text-sm">Save</button>
+                    </div>
+                </form>
+
+
+            </div>
+        </>
+    )
 }
 
 export default Dashboard
