@@ -8,13 +8,13 @@ const Navbar = () => {
   const [showdropdown, setShowdropdown] = useState(false);
 
   return (
-    <nav className="bg-blue-950 text-white flex justify-between items-center px-10 h-16">
+    <nav className="bg-blue-950 text-white flex justify-between items-center px-10 md:h-16 flex-col md:flex-row">
       <Link
         className="logo font-bold text-lg flex justify-center items-center"
         href="/"
       >
         <img className="invertImg" src="/tea.gif" width={44} alt="" />
-        <span>Get Me a Chai</span>
+        <span className="text-xl md:text-base my-3 md:my-0">Get Me a Chai</span>
       </Link>
 
       <div className="relative flex justify-center items-center  md:block gap-4">
@@ -63,7 +63,7 @@ const Navbar = () => {
                 <li>
                   <Link
                     href="/dashboard"
-                    onClick={() => setShowdropdown(false)}
+
                     className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                   >
                     Dashboard

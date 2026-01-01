@@ -2,29 +2,65 @@
 import React, { useEffect, useState } from 'react'
 import { useSession, signIn, signOut } from "next-auth/react"
 import { useRouter } from 'next/navigation'
+import { fetchUser, updateProfile } from '@/actions/useractions'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
+import { getFlightDataPartsFromPath } from 'next/dist/client/flight-data-helpers'
 
 const Dashboard = () => {
     const { data: session, update } = useSession()
     const router = useRouter()
     const [form, setform] = useState({})
+    const [open, setOpen] = useState(false)
 
     useEffect(() => {
-        console.log(session)
 
         if (!session) {
             router.push('/login')
         }
+        else {
+            getData()
+        }
     }, [])
 
-    const handleChange = (e) => {
-        setform({ ...form, [e.target.name]: e.target.value })
+    const getData = async () => {
+        let u = null
+        try {
+            console.log(session)
+            u = await fetchUser(session.user.name)
+        } catch (e) {
+            u = null
+        }
+        const s = session?.user || {}
+        const merged = {
+            name: s.OriginalName || u?.name || s.name || '',
+            email: u?.email || s.email || '',
+            username: u?.username || s.name || '',
+            profilepic: u?.profilepic || s.image || '',
+            coverpic: u?.coverpic || '',
+            razorpayid: u?.razorpayid || '',
+            razorpaysecret: u?.razorpaysecret || '',
+        }
+        setform(merged)
+    }
+
+    const handleChange = async (e) => {
+        const { name, value } = e.target
+        setform(prev => ({ ...prev, [name]: value }))
+        // If user edits the name field, update the session's OriginalName
+        if (name === 'name' && typeof update === 'function' && session) {
+            try {
+                await update({ ...session, user: { ...session.user, OriginalName: value } })
+            } catch (err) {
+                console.error('Failed to update session OriginalName', err)
+            }
+        }
     }
 
     const handleSubmit = async (e) => {
 
+        let a = await updateProfile(e, session.user.name)
         toast('Profile Updated', {
             position: "top-right",
             autoClose: 5000,
@@ -35,9 +71,8 @@ const Dashboard = () => {
             progress: undefined,
             theme: "light",
             transition: Bounce,
-            });
+        });
     }
-
 
     return (
         <>
@@ -58,11 +93,30 @@ const Dashboard = () => {
             <div className='container mx-auto py-5 px-6 '>
                 <h1 className='text-center my-5 text-3xl font-bold'>Welcome to your Dashboard</h1>
 
-                <form className="max-w-2xl mx-auto" action={handleSubmit}>
+                {/* Collapsible profile bar */}
+                <div className="max-w-2xl mx-auto">
+                    <div className="flex items-center justify-between rounded p-3 shadow-sm" style={{ background: 'linear-gradient(90deg,#155DFC 0%,#814CFE 100%)', color: '#ffffff', minHeight: '72px' }}>
+                        <div className="flex items-center gap-4">
+                            <img src={form.profilepic || session?.user?.image || '/favicon.ico'} alt="avatar" className="w-14 h-14 rounded-full object-cover" />
+                            <div>
+                                            <div className="text-lg font-semibold">{session?.user?.OriginalName || form.name || session?.user?.name || 'Your Name'}</div>
+                                            <div className="text-sm" style={{ color: 'rgba(255,255,255,0.85)' }}>@{session?.user?.OriginalName || form.username || session?.user?.name || 'username'}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="button" onClick={() => setOpen(!open)} style={{ backgroundColor: '#00091D' }} className="px-4 py-2 text-white rounded text-sm">{open ? 'Close' : 'Edit Profile'}</button>
+                        </div>
+                    </div>
+
+                    {/* Expanded area: show the existing form inside a gray box when open */}
+                    <div className={`${open ? 'block' : 'hidden'} mt-3 p-4 rounded`} style={{ backgroundColor: 'rgba(129,76,254,0.06)', border: '1px solid rgba(21,93,252,0.12)' }}>{
+                        /* keep the existing form markup unchanged inside here */
+                    }
+                    <form className="max-w-2xl mx-auto" action={handleSubmit}>
 
                     <div className='my-2'>
                         <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
-                        <input value={form.name ? form.name : ""} onChange={handleChange} type="text" name='name' id="name" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                        <input value={form.name ?? (session?.user?.OriginalName ?? "")} onChange={handleChange} type="text" name='name' id="name" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                     </div>
                     {/* input for email */}
                     <div className="my-2">
@@ -100,8 +154,9 @@ const Dashboard = () => {
                     <div className="my-6">
                         <button type="submit" className="block w-full p-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-blue-500 focus:ring-4 focus:outline-none   dark:focus:ring-blue-800 font-medium text-sm">Save</button>
                     </div>
-                </form>
-
+                    </form>
+                    </div>
+                </div>
 
             </div>
         </>
