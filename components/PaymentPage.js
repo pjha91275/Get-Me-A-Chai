@@ -11,94 +11,126 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
 import { useRouter } from "next/navigation";
 
-const PaymentPage = ({username}) => {
+const PaymentPage = ({ username }) => {
 
-    const { data: session } = useSession();
+  const { data: session } = useSession();
 
-    const [paymentform, setPaymentform] = useState({name: "", message: "", amount: ""});
-    const [currentUser, setcurrentUser] = useState({});
-    const [payments, setpayments] = useState([]);
-    const searchParams = useSearchParams()
-    const router = useRouter()
+  const [paymentform, setPaymentform] = useState({ name: "", message: "", amount: "" });
+  const [currentUser, setcurrentUser] = useState({});
+  const [payments, setpayments] = useState([]);
+  const searchParams = useSearchParams()
+  const router = useRouter()
 
-      useEffect(() => {
-        if(searchParams.get("paymentdone") == "true"){
-        toast('Thanks for your donation!', {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-            transition: Bounce,
-            });
-        }
-        router.push(`/${username}`)
-     
-    }, [])
+  useEffect(() => {
+    if (searchParams.get("paymentdone") == "true") {
+      toast('Thanks for your donation!', {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    }
+    router.push(`/${username}`)
 
-    useEffect(() => {
-        getData()
-    }, [])
+  }, [])
 
-    const handleChange = (e) => {
-        setPaymentform({...paymentform, [e.target.name]: e.target.value})
+  useEffect(() => {
+    getData()
+  }, [])
+
+  const handleChange = (e) => {
+    setPaymentform({ ...paymentform, [e.target.name]: e.target.value })
+  }
+
+  const getData = async (params) => {
+    let u = await fetchUser(username)
+    setcurrentUser(u)
+    let dbpayments = await fetchPayments(username)
+    setpayments(dbpayments)
+  }
+
+  const pay = async (amount) => {
+    // Check if Razorpay credentials are present
+    if (!currentUser.razorpayid || !currentUser.razorpaysecret) {
+      toast.error("The Creator has not set up their razorpayid and razorpaysecret yet!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+      return;
     }
 
-    const getData = async (params) => {
-        let u = await fetchUser(username)
-        setcurrentUser(u)
-        let dbpayments = await fetchPayments(username)
-        setpayments(dbpayments)
+    // Check form validation
+    if (paymentform.name.length < 3 || paymentform.message.length < 4 || amount < 1) {
+      toast.error("Please enter a valid Name (3+ chars), Message (4+ chars) and Amount (1+ chars)!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+      return;
     }
 
-    const pay = async (amount) => {
-        //Get the order Id
-        let a = await initiate(amount, username , paymentform)
-        let orderId = a.id;
-          var options = {
-    "key": currentUser.razorpayid, // Enter the Key ID generated from the Dashboard
-    "amount": amount, // Amount is in currency subunits. 
-    "currency": "INR",
-    "name": "Get Me A Chai", //your business name
-    "description": "Test Transaction",
-    "image": "https://example.com/your_logo",
-    "order_id": orderId, // This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-    "callback_url": `${process.env.NEXT_PUBLIC_URL}/api/razorpay`,
-    "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
+    //Get the order Id
+    let a = await initiate(amount, username, paymentform)
+    let orderId = a.id;
+    var options = {
+      "key": currentUser.razorpayid, // Enter the Key ID generated from the Dashboard
+      "amount": amount, // Amount is in currency subunits. 
+      "currency": "INR",
+      "name": "Get Me A Chai", //your business name
+      "description": "Test Transaction",
+      "image": "https://example.com/your_logo",
+      "order_id": orderId, // This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+      "callback_url": `${process.env.NEXT_PUBLIC_URL}/api/razorpay`,
+      "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
         "name": "Gaurav Kumar", //your customer's name
         "email": "gaurav.kumar@example.com",
         "contact": "+919876543210" //Provide the customer's phone number for better conversion rates 
-    },
-    "notes": {
+      },
+      "notes": {
         "address": "Razorpay Corporate Office"
-    },
-    "theme": {
+      },
+      "theme": {
         "color": "#3399cc"
-    }
-};
+      }
+    };
 
     var rzp1 = new Razorpay(options);
     rzp1.open();
-}
+  }
 
   return (
     <>
-    <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light" />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light" />
       <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
-      
+
       <div className="cover w-full bg-red-50 relative">
         <img
           className="object-cover w-full h-48 md:h-[350] shadow-blue-700 shadow-sm"
@@ -120,7 +152,7 @@ const PaymentPage = ({username}) => {
         <div className="font-bold text-lg">@{username}</div>
         <div className="text-slate-400">Lets help {username} get a chai!</div>
         <div className="text-slate-400">
-          {payments.length} Payments.  ₹{payments.reduce((a,b) => a + b.amount, 0)} raised
+          {payments.length} Payments.  ₹{payments.reduce((a, b) => a + b.amount, 0)} raised
         </div>
 
         <div className="payment flex gap-3 w-[80%] mt-11 flex-col md:flex-row">
@@ -134,8 +166,8 @@ const PaymentPage = ({username}) => {
                   <span>
                     {p.name} donated <span className="font-bold">₹{p.amount}</span> with a
                     message "{p.message}"
-                </span>
-              </li>
+                  </span>
+                </li>
               ))}
             </ul>
           </div>
@@ -159,20 +191,20 @@ const PaymentPage = ({username}) => {
                 type="text"
                 className="w-full p-3 rounded-lg bg-slate-800"
                 placeholder="Enter Amount"
-              />   
-              <button onClick={() => pay(Number.parseInt(paymentform.amount)*100)}
+              />
+              <button onClick={() => pay(Number.parseInt(paymentform.amount) * 100)}
                 type="button"
-                className="text-white bg-gradient-to-br from-purple-900 to-blue-900 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 disabled:bg-slate-600 disabled:from-purple-100" disabled={paymentform.name?.length<3 || paymentform.message?.length<4 || paymentform.amount?.length<1}
+                className={`text-white bg-gradient-to-br from-purple-900 to-blue-900 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 ${paymentform.name.length < 3 || paymentform.message.length < 4 || paymentform.amount.length < 1 ? "disabled:bg-slate-600 disabled:from-purple-100 opacity-60 cursor-not-allowed" : ""}`}
               >
-                Pay       
+                Pay
               </button>
             </div>
 
             <div className="flex flex-col md:flex-row gap-2 mt-5">
-              <button className="bg-slate-800 disabled:bg-slate-400 p-3 rounded-lg" onClick={()=>{pay(1000)}} disabled={paymentform.name?.length<3 || paymentform.message?.length<4 }>Pay ₹10</button>
-              <button className="bg-slate-800 disabled:bg-slate-400 p-3 rounded-lg" onClick={()=>{pay(2000)}} disabled={paymentform.name?.length<3 || paymentform.message?.length<4 }>Pay ₹20</button>
-              <button className="bg-slate-800 disabled:bg-slate-400 p-3 rounded-lg" onClick={()=>{pay(3000)}} disabled={paymentform.name?.length<3 || paymentform.message?.length<4 }>Pay ₹30</button>
-            </div>     
+              <button className={`p-3 rounded-lg bg-slate-800 ${paymentform.name.length < 3 || paymentform.message.length < 4 ? "bg-slate-400" : ""}`} onClick={() => { pay(1000) }}>Pay ₹10</button>
+              <button className={`p-3 rounded-lg bg-slate-800 ${paymentform.name.length < 3 || paymentform.message.length < 4 ? "bg-slate-400" : ""}`} onClick={() => { pay(2000) }}>Pay ₹20</button>
+              <button className={`p-3 rounded-lg bg-slate-800 ${paymentform.name.length < 3 || paymentform.message.length < 4 ? "bg-slate-400" : ""}`} onClick={() => { pay(3000) }}>Pay ₹30</button>
+            </div>
           </div>
         </div>
       </div>

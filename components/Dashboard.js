@@ -48,10 +48,15 @@ const Dashboard = () => {
     const handleChange = async (e) => {
         const { name, value } = e.target
         setform(prev => ({ ...prev, [name]: value }))
-        // If user edits the name field, update the session's OriginalName
-        if (name === 'name' && typeof update === 'function' && session) {
+        // If editing the name, also update the session's OriginalName so header updates
+        if (name === 'name' && session) {
             try {
-                await update({ ...session, user: { ...session.user, OriginalName: value } })
+                if (typeof update === 'function') {
+                    await update({ ...session, user: { ...session.user, OriginalName: value } })
+                } else {
+                    // fallback: mutate session object (best-effort)
+                    session.user = { ...session.user, OriginalName: value }
+                }
             } catch (err) {
                 console.error('Failed to update session OriginalName', err)
             }
@@ -59,8 +64,19 @@ const Dashboard = () => {
     }
 
     const handleSubmit = async (e) => {
-
-        let a = await updateProfile(e, session.user.name)
+        e.preventDefault()
+        const fd = new FormData(e.target)
+        await updateProfile(fd, session.user.name)
+        const newName = fd.get('name') || ''
+        const newUsername = fd.get('username') || ''
+        setform(prev => ({ ...prev, name: newName || prev.name, username: newUsername || prev.username }))
+        try {
+            if (typeof update === 'function' && session) {
+                await update({ ...session, user: { ...session.user, name: newUsername || session.user.name, OriginalName: newName || session.user.OriginalName } })
+            }
+        } catch (err) {
+            console.error('Failed to update session after profile save', err)
+        }
         toast('Profile Updated', {
             position: "top-right",
             autoClose: 5000,
@@ -88,8 +104,6 @@ const Dashboard = () => {
                 pauseOnHover
                 theme="light"
             />
-            {/* Same as */}
-            <ToastContainer />
             <div className='container mx-auto py-5 px-6 '>
                 <h1 className='text-center my-5 text-3xl font-bold'>Welcome to your Dashboard</h1>
 
@@ -99,8 +113,8 @@ const Dashboard = () => {
                         <div className="flex items-center gap-4">
                             <img src={form.profilepic || session?.user?.image || '/favicon.ico'} alt="avatar" className="w-14 h-14 rounded-full object-cover" />
                             <div>
-                                            <div className="text-lg font-semibold">{session?.user?.OriginalName || form.name || session?.user?.name || 'Your Name'}</div>
-                                            <div className="text-sm" style={{ color: 'rgba(255,255,255,0.85)' }}>@{session?.user?.OriginalName || form.username || session?.user?.name || 'username'}</div>
+                                <div className="text-lg font-semibold">{form.name ?? session?.user?.OriginalName ?? session?.user?.name ?? 'Your Name'}</div>
+                                <div className="text-sm" style={{ color: 'rgba(255,255,255,0.85)' }}>@{form.username ?? session?.user?.OriginalName ?? session?.user?.name ?? 'username'}</div>
                             </div>
                         </div>
                         <div>
@@ -112,49 +126,49 @@ const Dashboard = () => {
                     <div className={`${open ? 'block' : 'hidden'} mt-3 p-4 rounded`} style={{ backgroundColor: 'rgba(129,76,254,0.06)', border: '1px solid rgba(21,93,252,0.12)' }}>{
                         /* keep the existing form markup unchanged inside here */
                     }
-                    <form className="max-w-2xl mx-auto" action={handleSubmit}>
+                        <form className="max-w-2xl mx-auto" onSubmit={handleSubmit}>
 
-                    <div className='my-2'>
-                        <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
-                        <input value={form.name ?? (session?.user?.OriginalName ?? "")} onChange={handleChange} type="text" name='name' id="name" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                    </div>
-                    {/* input for email */}
-                    <div className="my-2">
-                        <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
-                        <input value={form.email ? form.email : ""} onChange={handleChange} type="email" name='email' id="email" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                    </div>
-                    {/* input forusername */}
-                    <div className='my-2'>
-                        <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
-                        <input value={form.username ? form.username : ""} onChange={handleChange} type="text" name='username' id="username" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                    </div>
-                    {/* input for profile picture of input type text */}
-                    <div className="my-2">
-                        <label htmlFor="profilepic" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Profile Picture</label>
-                        <input value={form.profilepic ? form.profilepic : ""} onChange={handleChange} type="text" name='profilepic' id="profilepic" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                    </div>
+                            <div className='my-2'>
+                                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
+                                <input value={form.name ?? (session?.user?.OriginalName ?? "")} onChange={handleChange} type="text" name='name' id="name" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                            </div>
+                            {/* input for email */}
+                            <div className="my-2">
+                                <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                                <input value={form.email ? form.email : ""} onChange={handleChange} type="email" name='email' id="email" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                            </div>
+                            {/* input forusername */}
+                            <div className='my-2'>
+                                <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
+                                <input value={form.username ? form.username : ""} onChange={handleChange} type="text" name='username' id="username" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                            </div>
+                            {/* input for profile picture of input type text */}
+                            <div className="my-2">
+                                <label htmlFor="profilepic" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Profile Picture</label>
+                                <input value={form.profilepic ? form.profilepic : ""} onChange={handleChange} type="text" name='profilepic' id="profilepic" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                            </div>
 
-                    {/* input for cover pic  */}
-                    <div className="my-2">
-                        <label htmlFor="coverpic" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Cover Picture</label>
-                        <input value={form.coverpic ? form.coverpic : ""} onChange={handleChange} type="text" name='coverpic' id="coverpic" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                    </div>
-                    {/* input razorpay id */}
-                    <div className="my-2">
-                        <label htmlFor="razorpayid" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Razorpay Id</label>
-                        <input value={form.razorpayid ? form.razorpayid : ""} onChange={handleChange} type="text" name='razorpayid' id="razorpayid" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                    </div>
-                    {/* input razorpay secret */}
-                    <div className="my-2">
-                        <label htmlFor="razorpaysecret" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Razorpay Secret</label>
-                        <input value={form.razorpaysecret ? form.razorpaysecret : ""} onChange={handleChange} type="text" name='razorpaysecret' id="razorpaysecret" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                    </div>
+                            {/* input for cover pic  */}
+                            <div className="my-2">
+                                <label htmlFor="coverpic" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Cover Picture</label>
+                                <input value={form.coverpic ? form.coverpic : ""} onChange={handleChange} type="text" name='coverpic' id="coverpic" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                            </div>
+                            {/* input razorpay id */}
+                            <div className="my-2">
+                                <label htmlFor="razorpayid" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Razorpay Id</label>
+                                <input value={form.razorpayid ? form.razorpayid : ""} onChange={handleChange} type="text" name='razorpayid' id="razorpayid" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                            </div>
+                            {/* input razorpay secret */}
+                            <div className="my-2">
+                                <label htmlFor="razorpaysecret" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Razorpay Secret</label>
+                                <input value={form.razorpaysecret ? form.razorpaysecret : ""} onChange={handleChange} type="text" name='razorpaysecret' id="razorpaysecret" className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                            </div>
 
-                    {/* Submit Button  */}
-                    <div className="my-6">
-                        <button type="submit" className="block w-full p-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-blue-500 focus:ring-4 focus:outline-none   dark:focus:ring-blue-800 font-medium text-sm">Save</button>
-                    </div>
-                    </form>
+                            {/* Submit Button  */}
+                            <div className="my-6">
+                                <button type="submit" className="block w-full p-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-blue-500 focus:ring-4 focus:outline-none   dark:focus:ring-blue-800 font-medium text-sm">Save</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
