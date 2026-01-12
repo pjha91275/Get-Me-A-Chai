@@ -8,7 +8,7 @@ const Navbar = () => {
   const [showdropdown, setShowdropdown] = useState(false);
 
   return (
-    <nav className="bg-blue-950 text-white flex justify-between items-center px-10 pb-3 md:pb-0 md:h-16 flex-col md:flex-row">
+    <nav className="bg-[#231053] text-white flex justify-between items-center px-10 pb-3 md:pb-0 md:h-16 flex-col md:flex-row">
       <Link
         className="logo font-bold text-lg flex justify-center items-center"
         href="/"

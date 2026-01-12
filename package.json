@@ -16,8 +16,7 @@
     "razorpay": "^2.9.6",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-toastify": "^9.0.5",
-    "turbopack": "^0.0.1"
+    "react-toastify": "^9.0.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

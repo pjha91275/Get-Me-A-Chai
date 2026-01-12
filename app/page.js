@@ -61,7 +61,7 @@ export default function Home() {
 
           <div className="item space-y-3 flex flex-col items-center justify-center">
             <img
-              src="/man.gif"
+              src="/coin.gif"
               alt=""
               className="bg-slate-400 rounded-full p-2 text-black"
               width={88}
@@ -74,7 +74,7 @@ export default function Home() {
 
           <div className="item space-y-3 flex flex-col items-center justify-center">
             <img
-              src="/man.gif"
+              src="/crowdfunding.gif"
               alt=""
               className="bg-slate-400 rounded-full p-2 text-black"
               width={88}
@@ -93,15 +93,8 @@ export default function Home() {
         <h2 className="text-3xl font-bold text-center my-4 ">
           Learn more about us
         </h2>
-        <div className="w-[90%] h-[40vh] md:w-[50%] md:h-[40vh] lg:w-[50%] lg:h-[40vh] xl:w-[50%] xl:h-[40vh]">
-          <iframe
-            className="w-full h-full"
-            src="https://www.youtube.com/embed/ojuUnfqnUI0?si=wMUv4DG3ia6Wt4zn"
-            title="YouTube video player"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          ></iframe>
+        <div className="w-[90%] h-[40vh] flex justify-center">
+          <iframe className="mx-auto" width="560" height="315" src="https://www.youtube.com/embed/fjHO4fAfCf0?si=L3DxNdDz24QN1_td" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
         </div>
       </div>
     </>
