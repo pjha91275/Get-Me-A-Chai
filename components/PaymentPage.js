@@ -131,7 +131,7 @@ const PaymentPage = ({ username }) => {
         theme="light" />
       <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
 
-      <div className="cover w-full bg-red-50 relative">
+      <div className={`cover w-full relative ${!(currentUser?.coverpic) ? "border-1" : ""} `}>
         <img
           className="object-cover w-full h-48 md:h-[350] shadow-blue-700 shadow-sm"
           src={currentUser?.coverpic || undefined}
@@ -156,8 +156,8 @@ const PaymentPage = ({ username }) => {
         </div>
 
         <div className="payment flex gap-3 w-[80%] mt-11 flex-col md:flex-row">
-          <div className="suppoters w-full md:w-1/2 bg-slate-900 rounded-lg text-white p-10">
-            <h2 className="text-2xl font-bold my-5">Top 10 Supporters</h2>
+          <div className="suppoters w-full md:w-1/2 bg-[#231053] rounded-lg text-white p-10">
+            <h2 className="text-2xl font-bold my-5 text-[#8a3bd9]">Top 10 Supporters</h2>
             <ul className="mx-5 text-lg">
               {payments.length === 0 && <div>No supporters yet</div>}
               {payments.slice(0, 10).map((p, i) => (
@@ -172,24 +172,21 @@ const PaymentPage = ({ username }) => {
             </ul>
           </div>
 
-          <div className="makePayment w-full md:w-1/2 bg-slate-900 rounded-lg text-white p-10">
-            <h2 className="text-2xl font-bold my-5">Make a Payment</h2>
+          <div className="makePayment w-full md:w-1/2 bg-[#231053] rounded-lg text-white p-10">
+            <h2 className="text-2xl font-bold my-5 text-[#8a3bd9]">Make a Payment</h2>
             <div className="flex gap-2 flex-col">
               <div>
                 <input onChange={handleChange} value={paymentform.name} name="name"
-                  type="text"
-                  className="w-full p-3 rounded-lg bg-slate-800"
+                  type="text" className="w-full p-3 rounded-lg bg-white text-black font-semibold"
                   placeholder="Enter Name"
                 />
               </div>
               <input onChange={handleChange} value={paymentform.message} name="message"
-                type="text"
-                className="w-full p-3 rounded-lg bg-slate-800"
+                type="text" className="w-full p-3 rounded-lg bg-white text-black font-semibold"
                 placeholder="Enter Message"
               />
               <input onChange={handleChange} value={paymentform.amount} name="amount"
-                type="text"
-                className="w-full p-3 rounded-lg bg-slate-800"
+                type="text" className="w-full p-3 rounded-lg bg-white text-black font-semibold"
                 placeholder="Enter Amount"
               />
               <button onClick={() => pay(Number.parseInt(paymentform.amount) * 100)}
@@ -201,9 +198,21 @@ const PaymentPage = ({ username }) => {
             </div>
 
             <div className="flex flex-col md:flex-row gap-2 mt-5">
-              <button className={`p-3 rounded-lg bg-slate-800 ${paymentform.name.length < 3 || paymentform.message.length < 4 ? "bg-slate-400" : ""}`} onClick={() => { pay(1000) }}>Pay ₹10</button>
-              <button className={`p-3 rounded-lg bg-slate-800 ${paymentform.name.length < 3 || paymentform.message.length < 4 ? "bg-slate-400" : ""}`} onClick={() => { pay(2000) }}>Pay ₹20</button>
-              <button className={`p-3 rounded-lg bg-slate-800 ${paymentform.name.length < 3 || paymentform.message.length < 4 ? "bg-slate-400" : ""}`} onClick={() => { pay(3000) }}>Pay ₹30</button>
+              <button className={`p-3 rounded-lg 
+    ${(paymentform.name.length < 3 || paymentform.message.length < 4)
+      ? "bg-slate-400 cursor-not-allowed"
+      : "bg-slate-800 hover:bg-slate-700"}
+  `} onClick={() => { pay(1000) }}>Pay ₹10</button>
+              <button className={`p-3 rounded-lg 
+    ${(paymentform.name.length < 3 || paymentform.message.length < 4)
+      ? "bg-slate-400 cursor-not-allowed"
+      : "bg-slate-800 hover:bg-slate-700"}
+  `} onClick={() => { pay(2000) }}>Pay ₹20</button>
+              <button className={`p-3 rounded-lg 
+    ${(paymentform.name.length < 3 || paymentform.message.length < 4)
+      ? "bg-slate-400 cursor-not-allowed"
+      : "bg-slate-800 hover:bg-slate-700"}
+  `} onClick={() => { pay(3000) }}>Pay ₹30</button>
             </div>
           </div>
         </div>

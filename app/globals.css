@@ -3,3 +3,13 @@
 .invertImg{
     filter: invert(0.23)
 }
+
+.darkVioletFilter {
+  filter:
+    brightness(1.7)
+    saturate(6)
+    hue-rotate(35deg);
+}
+
+
+

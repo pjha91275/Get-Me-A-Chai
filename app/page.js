@@ -6,9 +6,9 @@ export default function Home() {
     <>
       <div className="flex justify-center flex-col gap-4 items-center text-white h-[44vh] px-5 md:px-0 text-xs md:text-base">
         <div className="font-bold flex gap-3 md:gap-6 md:text-5xl justify-center items-center text-3xl">
-          Buy Me a Chai{" "}
+          Get Me a Chai{" "}
           <span>
-            <img className="invertImg" src="/tea.gif" alt="" width={88} />
+            <img className="invertImg darkVioletFilter" src="/tea.gif" alt="" width={88} />
           </span>
         </div>
         <p className="text-center md:text-left">
