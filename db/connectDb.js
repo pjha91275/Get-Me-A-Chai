@@ -2,9 +2,12 @@ import mongoose from 'mongoose';
 
 const connectDb = async () => {
   try {
+    if (mongoose.connection.readyState >= 1) {
+      return;
+    }
+
     if (!process.env.MONGO_URI) {
-      console.error("❌ Error: MONGO_URI environment variable is not defined.");
-      process.exit(1);
+      throw new Error("MONGO_URI environment variable is not defined.");
     }
 
     const maskedURI = process.env.MONGO_URI.replace(/:([^:@]+)@/, ':****@');
@@ -14,7 +17,7 @@ const connectDb = async () => {
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`❌ Error connecting to MongoDB: ${error.message}`);
-    process.exit(1);
+    throw error;
   }
 }
 
