@@ -24,7 +24,7 @@ export const initiate = async (amount, to_username, paymentform) => {
   //Create a payment object which shows a pending payment in the database
   await Payment.create({
     oid: x.id,
-    amount: amount/100,
+    amount: amount / 100,
     to_user: to_username,
     name: paymentform.name,
     message: paymentform.message,
@@ -51,6 +51,8 @@ export const fetchPayments = async (username) => {
 export const updateProfile = async (data, oldusername) => {
   await connectDb();
   let ndata = Object.fromEntries(data);
+  // Remove email from the update data to ensure it's not nullified or changed
+  delete ndata.email;
 
   //if the username is being updated check if the username is valid
   if (oldusername !== ndata.username) {
@@ -58,15 +60,15 @@ export const updateProfile = async (data, oldusername) => {
     if (u) {
       return { error: "Username already exists" };
     }
-    await User.updateOne({ email: ndata.email }, ndata);
+    await User.updateOne({ username: oldusername }, ndata);
     //Now update all the username in the Payments table
     await Payment.updateMany(
       { to_user: oldusername },
       { to_user: ndata.username }
     )
-  }   
-  else{
-      await User.updateOne({ email: ndata.email }, ndata);
+  }
+  else {
+    await User.updateOne({ username: oldusername }, ndata);
   }
 
 }
