@@ -19,7 +19,7 @@ const Navbar = () => {
 
       <div className="relative flex justify-center items-center md:block gap-4">
         {session && (
-          <div className="relative" onBlur={(e) => {
+          <div className="relative inline-block" onBlur={(e) => {
             // If the new focus is NOT inside this div, close the dropdown
             if (!e.currentTarget.contains(e.relatedTarget)) {
               setShowdropdown(false);
