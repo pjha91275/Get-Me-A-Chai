@@ -10,9 +10,6 @@ const connectDb = async () => {
       throw new Error("MONGO_URI environment variable is not defined.");
     }
 
-    const maskedURI = process.env.MONGO_URI.replace(/:([^:@]+)@/, ':****@');
-    console.log(`🔌 Attempting to connect to MongoDB at: ${maskedURI}`);
-
     const conn = await mongoose.connect(process.env.MONGO_URI);
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
