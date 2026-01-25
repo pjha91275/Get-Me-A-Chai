@@ -54,8 +54,6 @@ export const fetchPayments = async (username) => {
 export const updateProfile = async (data, oldusername) => {
   await connectDb();
   let ndata = Object.fromEntries(data);
-  // Remove email from the update data to ensure it's not nullified or changed
-  delete ndata.email;
 
   //if the username is being updated check if the username is valid
   if (oldusername !== ndata.username) {
@@ -63,7 +61,7 @@ export const updateProfile = async (data, oldusername) => {
     if (u) {
       return { error: "Username already exists" };
     }
-    await User.updateOne({ username: oldusername }, ndata);
+    await User.updateOne({ email: ndata.email }, ndata);
     //Now update all the username in the Payments table
     await Payment.updateMany(
       { to_user: oldusername },
@@ -71,7 +69,7 @@ export const updateProfile = async (data, oldusername) => {
     )
   }
   else {
-    await User.updateOne({ username: oldusername }, ndata);
+    await User.updateOne({ email: ndata.email }, ndata);
   }
 
 }

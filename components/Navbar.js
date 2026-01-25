@@ -17,9 +17,14 @@ const Navbar = () => {
         <span className="text-xl md:text-base my-3 md:my-0">Get Me a Chai</span>
       </Link>
 
-      <div className="relative flex justify-center items-center  md:block gap-4">
+      <div className="relative flex justify-center items-center md:block gap-4">
         {session && (
-          <>
+          <div className="relative" onBlur={(e) => {
+            // If the new focus is NOT inside this div, close the dropdown
+            if (!e.currentTarget.contains(e.relatedTarget)) {
+              setShowdropdown(false);
+            }
+          }}>
             <button
               onClick={() => setShowdropdown(!showdropdown)}
               id="dropdownDefaultButton"
@@ -57,7 +62,7 @@ const Navbar = () => {
                 <li>
                   <Link
                     href="/dashboard"
-
+                    onClick={() => setShowdropdown(false)}
                     className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                   >
                     Dashboard
@@ -65,7 +70,9 @@ const Navbar = () => {
                 </li>
                 {session?.user?.name && (
                   <li>
-                    <Link href={`/${session.user.name}`} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Your Page</Link>
+                    <Link href={`/${session.user.name}`}
+                      onClick={() => setShowdropdown(false)}
+                      className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Your Page</Link>
                   </li>
                 )}
                 <li>
@@ -80,7 +87,7 @@ const Navbar = () => {
                 </li>
               </ul>
             </div>
-          </>
+          </div>
         )}
 
         {session && (
