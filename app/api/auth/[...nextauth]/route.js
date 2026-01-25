@@ -55,9 +55,11 @@ export const authoptions = NextAuth({
 
     async session({ session, user, token }) {
       const dbUser = await User.findOne({ email: session.user.email })
-      // Preserve the original provider name (e.g., GitHub name) before overwriting
-      session.user.OriginalName = dbUser.name || session.user.name
-      session.user.name = dbUser.username
+      if (dbUser) {
+        // Preserve the original provider name (e.g., GitHub name) before overwriting
+        session.user.OriginalName = dbUser.name || session.user.name
+        session.user.name = dbUser.username
+      }
       return session
     },
   }
