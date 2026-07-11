@@ -117,7 +117,7 @@ get-me-a-chai/
 ---
 
 ## 🚧 Known Limitations & Development Status
-*   **Self-Donation Only:** The current architecture is optimized for a self-support practice loop(Users can securely test donation workflows through their own creator profile using Razorpay's test mode); cross-user donations are intentionally restricted in this version.
+*   **Self-Donation Only:** The current architecture is optimized for a self-support practice loop (Users can securely test donation workflows through their own creator profile using Razorpay's test mode); cross-user donations are intentionally restricted in this version.
 *   **Unified Account Structure:** There is no distinction between "Fan" and "Creator" roles; every user account possesses both capabilities.
 *   **Single Auth Channel:** Authentication is currently limited to GitHub; additional providers are not yet integrated.
 *   **Admin Oversight:** Lacks a centralized administrative dashboard for platform-wide metrics and user moderation.
