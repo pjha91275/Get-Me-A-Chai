@@ -1,6 +1,6 @@
 # 🍵 Get Me A Chai
 
-**Get Me A Chai** is a professional-grade full-stack simulation of a crowdfunding platform, built to explore the integration of secure payment gateways, OAuth authentication, and dynamic user environments. 
+**Get Me A Chai** is a modern full-stack simulation of a crowdfunding platform, built to explore the integration of secure payment gateways, OAuth authentication, and dynamic user environments. 
 
 🚀 **Live Demo:** [getmeachai-app.vercel.app](https://getmeachai-app.vercel.app/)
 
@@ -44,7 +44,7 @@ Unlike commercial platforms, this project is designed as a **Technical Simulatio
 *   **Real-time Feedback:** Integrated `react-toastify` for instant visual cues during profile updates and payment outcomes.
 
 ### **Backend & Implementation**
-*   **Server Actions Architecture:** Implements a revolutionary "no-API" approach where frontend components trigger secure server-side functions directly.
+*   **Server Actions Architecture:** Implements a Next.js Server Actions architecture where frontend components trigger secure server-side functions directly.
 *   **OAuth 2.0 Integration:** Robust session management using **NextAuth.js** with GitHub as the primary identity provider.
 *   **Payment Orchestration:** Comprehensive integration with the **Razorpay SDK**, handling order creation, secret verification, and callback orchestration.
 
@@ -117,7 +117,7 @@ get-me-a-chai/
 ---
 
 ## 🚧 Known Limitations & Development Status
-*   **Self-Donation Only:** The current architecture is optimized for a self-support practice loop; cross-user donations are intentionally restricted in this version.
+*   **Self-Donation Only:** The current architecture is optimized for a self-support practice loop(Users can securely test donation workflows through their own creator profile using Razorpay's test mode); cross-user donations are intentionally restricted in this version.
 *   **Unified Account Structure:** There is no distinction between "Fan" and "Creator" roles; every user account possesses both capabilities.
 *   **Single Auth Channel:** Authentication is currently limited to GitHub; additional providers are not yet integrated.
 *   **Admin Oversight:** Lacks a centralized administrative dashboard for platform-wide metrics and user moderation.
